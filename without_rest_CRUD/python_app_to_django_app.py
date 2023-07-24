@@ -51,5 +51,18 @@ def create_resource():
     resp=requests.post(BASE_URL+end_point1,data=json_data)
     print(resp.status_code)
     print(resp.json())
-create_resource()
+#create_resource()
 
+# update resource
+end_point2='apiwithout_rest_crud/emp_serialize/'
+def update_resource(id):
+    emp = {
+        'esal' : 70000,
+        'eadd' : 'Kolkatha'
+    }
+    json_data = json.dumps(emp)
+    resp=requests.put(BASE_URL+end_point2+str(id),data=json_data)
+    print(resp.status_code)
+    print(resp.json())
+
+update_resource(9)

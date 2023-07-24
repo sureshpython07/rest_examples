@@ -24,8 +24,18 @@ class EmployeeDetailsCBV(View):
         print('Data',json_data)
         return HttpResponse(json_data,content_type='application/json')
 
- #using mixin class   
+ #inheriting mixin class  
+@method_decorator(csrf_exempt,name='dispatch') 
 class EmployeeDetailsCBV_Serialize(SerializeMixin,HttpResponseStausMixin,View):
+    def get_object_by_id(self,id):
+        print("----------------",id)
+        try:
+            emp=Employee.objects.get(id=id)
+            print('@@@@@@@@@@@@@@empdata')
+        except Employee.DoesNotExist:
+            emp=None
+        return emp
+    
     def get(self,request,id,*args,**kwargs):
         try:
             emp=Employee.objects.get(id=id)
@@ -37,6 +47,37 @@ class EmployeeDetailsCBV_Serialize(SerializeMixin,HttpResponseStausMixin,View):
             #json_data=serialize('json',[emp],fields=('eno','ename'))  taking only specific fields 
             json_data= self.serialize([emp])
             return self.httpresponse_withstatus(json_data,200)
+        
+    def put(self,request,id,*args, **kwargs):
+        print('provided id :', id)
+        emp_data=self.get_object_by_id(id)
+        if emp_data is None:
+            json_data=json.dumps({'msg':'No matched resource Found,Not possible to update'})
+            return self.httpresponse_withstatus(json_data,404)
+        data=request.body
+        valid_json=is_json_valid(data)
+        if not valid_json:
+            json_data=json.dumps({'msg':'Please provide json data'})
+            return self.httpresponse_withstatus(json_data,404)
+        provided_data=json.loads(data)
+        origianl_data = {
+            'eno' : emp_data.eno,
+            'ename' : emp_data.ename,
+            'esal' : emp_data.esal ,
+            'eadd' :emp_data.eadd
+        }
+        print(origianl_data)
+        origianl_data.update(provided_data)
+        print(origianl_data)
+        form=EmployeeForm(origianl_data,instance=emp_data)
+        if form.is_valid():
+            form.save(commit=True)
+            json_data=json.dumps({'msg':'Resource Updated Sucessfully'})
+            return self.httpresponse_withstatus(json_data,202)
+        if form.errors:
+            json_data=json.dumps(form.errors)
+            return self.httpresponse_withstatus(json_data,404)
+        
 #inheriting mixin class    
 @method_decorator(csrf_exempt,name='dispatch')
 class Employee_ListCBV_Serialize(SerializeMixin,HttpResponseStausMixin,View):
