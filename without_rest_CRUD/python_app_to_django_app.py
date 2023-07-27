@@ -65,4 +65,12 @@ def update_resource(id):
     print(resp.status_code)
     print(resp.json())
 
-update_resource(9)
+#update_resource(9)
+
+end_point3='apiwithout_rest_crud/emp_serialize/'
+def delete_resource(id):
+    resp=requests.delete(BASE_URL+end_point3+str(id))
+    print(resp.status_code)
+    print(resp.json())
+
+delete_resource(12)
