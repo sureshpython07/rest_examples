@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_api.models import Post
+from rest_api.models import Post,Student
 #serializer
 #ModelSerializer
 
@@ -21,4 +21,12 @@ class PostSerializer(serializers.Serializer):
         instance.email=validated_data.get('email',instance.email)
         instance.save()
         return instance
-
+    
+# 2. Using ModelSerializer
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        #to take all fields
+        fields = "__all__"
+        # to take specific columns
+        #fields= ['rollno','name','wclass']
